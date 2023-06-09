@@ -8,6 +8,16 @@ class EyeTrackingNLP:
     def __init__(self):
         self.eye_tracker = EyeTracker()
         self.model = RandomForestClassifier()
+        
+    def process_data(self, data):
+        processed_data = []
+        for timestamp, fixation_point in data:
+            x, y = fixation_point
+            # Scale the fixation points
+            new_x = x / 1000
+            new_y = y / 1000
+            processed_data.append((timestamp, (new_x, new_y)))
+        return processed_data
 
     def process_eye_tracking_data(self, eye_tracking_data):
         """
@@ -75,3 +85,10 @@ class EyeTrackingNLP:
         features, _ = zip(*new_data)
         predictions = self.model.predict(features)
         return predictions
+
+if __name__ == "__main__":
+    etnlp = EyeTrackingNLP()
+    processed_eye_data = etnlp.process_eye_tracking_data(eye_tracking_data)
+    processed_text_data = etnlp.process_text_data(text)
+    combined_data = etnlp.combine_data(processed_eye_data, processed_text_data)
+    etnlp.train_model(combined_data, labels)
