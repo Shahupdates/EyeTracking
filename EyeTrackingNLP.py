@@ -87,6 +87,11 @@ class EyeTrackingNLP:
         return predictions
 
 if __name__ == "__main__":
+    text = "This is a simple test sentence"
+    labels = ['category_1', 'category_2', 'category_1', 
+          'category_2', 'category_1', 'category_2']
+    eye_tracking_data = [(0.01, (50, 100)), (0.02, (60, 110)), (0.03, (65, 115)), 
+                     (0.04, (70, 120)), (0.05, (75, 125)), (0.06, (80, 130))]
     etnlp = EyeTrackingNLP()
     processed_eye_data = etnlp.process_eye_tracking_data(eye_tracking_data)
     processed_text_data = etnlp.process_text_data(text)
