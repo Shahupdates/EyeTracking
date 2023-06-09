@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 class EyeTrackingNLP:
     def __init__(self):
-        self.eye_tracker = EyeTracker()
+        self.eye_tracker = EyeTracker('dummy')
         self.model = RandomForestClassifier()
         
     def process_data(self, data):
@@ -85,15 +85,60 @@ class EyeTrackingNLP:
         features, _ = zip(*new_data)
         predictions = self.model.predict(features)
         return predictions
+    
+    
+def main():
+    # Initialize the EyeTrackingNLP instance
+    etnlp = EyeTrackingNLP()
 
+    # Initialize the video capture from the default camera
+    cap = cv2.VideoCapture(0)
+
+    while True:
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+
+        # If a frame was successfully captured
+        if ret:
+            # Process the frame with the EyeTracker
+            eye_data = etnlp.eye_tracker.sample()
+
+            # Use pytesseract to extract text from the frame
+            text = pytesseract.image_to_string(frame)
+
+            # Process the eye tracking data and the text data
+            processed_eye_data = etnlp.process_eye_tracking_data(eye_data)
+            processed_text_data = etnlp.process_text_data(text)
+
+            # Combine the data and train the model
+            combined_data = etnlp.combine_data(processed_eye_data, processed_text_data)
+            etnlp.train_model(combined_data, labels)
+
+            # Break the loop on 'q' key press
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        else:
+            print("Failed to capture frame")
+            break
+
+    # After the loop release the cap object
+    cap.release()
+    cv2.destroyAllWindows()    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 if __name__ == "__main__":
     text = "This is a simple test sentence"
     labels = ['category_1', 'category_2', 'category_1', 
           'category_2', 'category_1', 'category_2']
     eye_tracking_data = [(0.01, (50, 100)), (0.02, (60, 110)), (0.03, (65, 115)), 
                      (0.04, (70, 120)), (0.05, (75, 125)), (0.06, (80, 130))]
-    etnlp = EyeTrackingNLP()
-    processed_eye_data = etnlp.process_eye_tracking_data(eye_tracking_data)
-    processed_text_data = etnlp.process_text_data(text)
-    combined_data = etnlp.combine_data(processed_eye_data, processed_text_data)
-    etnlp.train_model(combined_data, labels)
+    main()
