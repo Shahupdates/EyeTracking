@@ -1,6 +1,7 @@
 import cv2
 import pytesseract
-from tkinter import Tk, Button
+import tkinter as tk
+from tkinter import messagebox, scrolledtext
 import threading
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
@@ -126,25 +127,32 @@ def process_video(etnlp, labels):
     
     
 def main():
-    text = "This is a simple test sentence"
-    labels = ['category_1', 'category_2', 'category_1', 
-              'category_2', 'category_1', 'category_2']
-
     # Initialize the EyeTrackingNLP instance
     etnlp = EyeTrackingNLP()
 
-    root = Tk()
+    root = tk.Tk()
+
+    # Create a textbox for input
+    text_label = tk.Label(root, text='Enter your text:')
+    text_label.pack()
+    text_box = tk.Entry(root, width=50)
+    text_box.pack()
+
+    # Create a display box for results
+    result_label = tk.Label(root, text='Results:')
+    result_label.pack()
+    result_box = scrolledtext.ScrolledText(root, width=50, height=10)
+    result_box.pack()
 
     # Create start and stop buttons
-    start_button = Button(root, text='Start', command=lambda: threading.Thread(target=process_video, args=(etnlp, labels)).start())
+    start_button = tk.Button(root, text='Start', command=lambda: threading.Thread(target=process_video, args=(etnlp, labels, text_box, result_box)).start())
     start_button.pack()
 
-    stop_button = Button(root, text='Stop', command=lambda: cv2.destroyAllWindows())
+    stop_button = tk.Button(root, text='Stop', command=lambda: cv2.destroyAllWindows())
     stop_button.pack()
 
     # Start the GUI event loop
     root.mainloop()
-  
     
 if __name__ == "__main__":
     text = "This is a simple test sentence"
