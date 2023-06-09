@@ -13,16 +13,10 @@ Predicts labels for new data using the trained model.
 Installation
 Ensure you have the following packages installed:
 
-Python 3.8+
-OpenCV
-pyGaze
-NLTK
-pytesseract
-Scikit-learn
+Python 3.8+, OpenCV, pyGaze, NLTK, pytesseract, Scikit-learn
 You can install these packages using pip:
 ```
 pip install opencv-python pygaze nltk pytesseract scikit-learn
-
 ```
 
 # Usage
