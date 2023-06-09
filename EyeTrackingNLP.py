@@ -1,4 +1,7 @@
-import nltk
+import cv2
+import pytesseract
+from tkinter import Tk, Button
+import threading
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
 from eye_tracking_library import EyeTracker
@@ -86,11 +89,7 @@ class EyeTrackingNLP:
         predictions = self.model.predict(features)
         return predictions
     
-    
-def main():
-    # Initialize the EyeTrackingNLP instance
-    etnlp = EyeTrackingNLP()
-
+def process_video(etnlp, labels):
     # Initialize the video capture from the default camera
     cap = cv2.VideoCapture(0)
 
@@ -123,17 +122,29 @@ def main():
 
     # After the loop release the cap object
     cap.release()
-    cv2.destroyAllWindows()    
+    cv2.destroyAllWindows()
     
     
-    
-    
-    
-    
-    
-    
-    
-    
+def main():
+    text = "This is a simple test sentence"
+    labels = ['category_1', 'category_2', 'category_1', 
+              'category_2', 'category_1', 'category_2']
+
+    # Initialize the EyeTrackingNLP instance
+    etnlp = EyeTrackingNLP()
+
+    root = Tk()
+
+    # Create start and stop buttons
+    start_button = Button(root, text='Start', command=lambda: threading.Thread(target=process_video, args=(etnlp, labels)).start())
+    start_button.pack()
+
+    stop_button = Button(root, text='Stop', command=lambda: cv2.destroyAllWindows())
+    stop_button.pack()
+
+    # Start the GUI event loop
+    root.mainloop()
+  
     
 if __name__ == "__main__":
     text = "This is a simple test sentence"
