@@ -9,7 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 class EyeTrackingNLP:
     def __init__(self):
-        self.eye_cascade = cv2.CascadeClassifier('path_to_eye_cascade_xml_file.xml')
+        self.eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
         self.model = RandomForestClassifier()
 
 
