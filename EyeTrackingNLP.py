@@ -91,7 +91,10 @@ class EyeTrackingNLP:
         return predictions
 
 
-def process_video(etnlp, labels, text_box, result_box):
+def process_video(etnlp, labels):
+    # Load the pre-trained landmark detection model
+    landmark_detector = dlib.shape_predictor('landmark_model.dat')
+
     # Initialize the video capture from the default camera
     cap = cv2.VideoCapture(0)
 
@@ -99,41 +102,32 @@ def process_video(etnlp, labels, text_box, result_box):
         # Capture frame-by-frame
         ret, frame = cap.read()
 
-        # If a frame was successfully captured
         if ret:
-            # Convert the frame to grayscale for eye detection
+            # Convert the frame to grayscale for face detection
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            # Detect eyes using the Haar cascade classifier
-            eyes = etnlp.eye_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+            # Detect faces in the frame
+            faces = etnlp.face_detector(gray)
 
-            # Process the eye tracking data and the text data
-            processed_eye_data = eyes
-            text = text_box.get()
-            processed_text_data = etnlp.process_text_data(text)
+            for face in faces:
+                # Detect landmarks for the face using the landmark detection model
+                landmarks = landmark_detector(gray, face)
 
-            # Combine the data and train the model
-            combined_data = etnlp.combine_data(processed_eye_data, processed_text_data)
-            etnlp.train_model(combined_data, labels)
+                # Extract eye regions from the face using the landmarks
+                left_eye_img, right_eye_img = extract_eye_regions(frame, landmarks)
 
-            # Display the frame with eye tracking rectangles
-            for (x, y, w, h) in eyes:
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                # Perform eye tracking analysis on the eye regions
+                # Add your eye tracking algorithm code here
 
-            # Display the processed frame in the GUI
-            cv2.imshow('Eye Tracking', frame)
+                # Display the eye regions with bounding rectangles
+                cv2.imshow('Left Eye', left_eye_img)
+                cv2.imshow('Right Eye', right_eye_img)
 
-            # Break the loop on 'q' key press
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-        else:
-            print("Failed to capture frame")
-            break
 
-    # After the loop, release the cap object
     cap.release()
     cv2.destroyAllWindows()
-
 def main():
     # Initialize the EyeTrackingNLP instance
     etnlp = EyeTrackingNLP()
