@@ -12,7 +12,7 @@ class EyeTrackingNLP:
     def __init__(self):
         self.eye_tracker = EyeTracker('dummy')
         self.model = RandomForestClassifier()
-        
+
     def process_data(self, data):
         processed_data = []
         for timestamp, fixation_point in data:
@@ -89,7 +89,8 @@ class EyeTrackingNLP:
         features, _ = zip(*new_data)
         predictions = self.model.predict(features)
         return predictions
-    
+
+
 def process_video(etnlp, labels):
     # Initialize the video capture from the default camera
     cap = cv2.VideoCapture(0)
@@ -121,11 +122,11 @@ def process_video(etnlp, labels):
             print("Failed to capture frame")
             break
 
-    # After the loop release the cap object
+    # After the loop, release the cap object
     cap.release()
     cv2.destroyAllWindows()
-    
-    
+
+
 def main():
     # Initialize the EyeTrackingNLP instance
     etnlp = EyeTrackingNLP()
@@ -145,7 +146,8 @@ def main():
     result_box.pack()
 
     # Create start and stop buttons
-    start_button = tk.Button(root, text='Start', command=lambda: threading.Thread(target=process_video, args=(etnlp, labels, text_box, result_box)).start())
+    start_button = tk.Button(root, text='Start', command=lambda: threading.Thread(target=process_video,
+                                                                                 args=(etnlp, labels)).start())
     start_button.pack()
 
     stop_button = tk.Button(root, text='Stop', command=lambda: cv2.destroyAllWindows())
@@ -153,11 +155,12 @@ def main():
 
     # Start the GUI event loop
     root.mainloop()
-    
+
+
 if __name__ == "__main__":
     text = "This is a simple test sentence"
-    labels = ['category_1', 'category_2', 'category_1', 
-          'category_2', 'category_1', 'category_2']
-    eye_tracking_data = [(0.01, (50, 100)), (0.02, (60, 110)), (0.03, (65, 115)), 
-                     (0.04, (70, 120)), (0.05, (75, 125)), (0.06, (80, 130))]
+    labels = ['category_1', 'category_2', 'category_1',
+              'category_2', 'category_1', 'category_2']
+    eye_tracking_data = [(0.01, (50, 100)), (0.02, (60, 110)), (0.03, (65, 115)),
+                         (0.04, (70, 120)), (0.05, (75, 125)), (0.06, (80, 130))]
     main()
