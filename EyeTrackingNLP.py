@@ -5,13 +5,13 @@ from tkinter import messagebox, scrolledtext
 import threading
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
-from eye_tracking_library import EyeTracker
 from sklearn.ensemble import RandomForestClassifier
 
 class EyeTrackingNLP:
     def __init__(self):
-        self.eye_tracker = EyeTracker('dummy')
+        self.eye_cascade = cv2.CascadeClassifier('path_to_eye_cascade_xml_file.xml')
         self.model = RandomForestClassifier()
+
 
     def process_data(self, data):
         processed_data = []
@@ -91,7 +91,7 @@ class EyeTrackingNLP:
         return predictions
 
 
-def process_video(etnlp, labels):
+def process_video(etnlp, labels, text_box, result_box):
     # Initialize the video capture from the default camera
     cap = cv2.VideoCapture(0)
 
@@ -101,19 +101,27 @@ def process_video(etnlp, labels):
 
         # If a frame was successfully captured
         if ret:
-            # Process the frame with the EyeTracker
-            eye_data = etnlp.eye_tracker.sample()
+            # Convert the frame to grayscale for eye detection
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            # Use pytesseract to extract text from the frame
-            text = pytesseract.image_to_string(frame)
+            # Detect eyes using the Haar cascade classifier
+            eyes = etnlp.eye_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
             # Process the eye tracking data and the text data
-            processed_eye_data = etnlp.process_eye_tracking_data(eye_data)
+            processed_eye_data = eyes
+            text = text_box.get()
             processed_text_data = etnlp.process_text_data(text)
 
             # Combine the data and train the model
             combined_data = etnlp.combine_data(processed_eye_data, processed_text_data)
             etnlp.train_model(combined_data, labels)
+
+            # Display the frame with eye tracking rectangles
+            for (x, y, w, h) in eyes:
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+            # Display the processed frame in the GUI
+            cv2.imshow('Eye Tracking', frame)
 
             # Break the loop on 'q' key press
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -125,7 +133,6 @@ def process_video(etnlp, labels):
     # After the loop, release the cap object
     cap.release()
     cv2.destroyAllWindows()
-
 
 def main():
     # Initialize the EyeTrackingNLP instance
